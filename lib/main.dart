@@ -28,7 +28,7 @@ class NumberGuessGame extends StatefulWidget {
 }
 
 class _NumberGuessGameState extends State<NumberGuessGame> {
-  int _NumberToGuess =
+  int _numberToGuess =
       Random().nextInt(100) + 1; // Random number between 1 and 100
   String? _message = '私が思い浮かべている数字はなんでしょうか(1~100)？';
   final TextEditingController _controller = TextEditingController();
@@ -38,15 +38,56 @@ class _NumberGuessGameState extends State<NumberGuessGame> {
     int? userGuess = int.tryParse(_controller.text);
 
     if (userGuess == null || userGuess <= 0 || userGuess > 100) {
-      _message = "1~100の数字を入力してください";
+      _message = '1~100の数字を入力してください';
       setState(() {
         _controller.clear();
       });
+      return;
+    } else if (userGuess == _numberToGuess) {
+      _count++;
+      _message = '「$userGuess」で正解です！{$_count} 回目で当たりました！新しい数字を思い浮かべます';
+      _numberToGuess = Random().nextInt(100) + 1;
+      _count = 0;
+    } else if (userGuess > _numberToGuess) {
+      _count++;
+      _message = '「$userGuess」は大きすぎます！もう一度試してみてください！';
+    } else if (userGuess < _numberToGuess) {
+      _count++;
+      _message = '「$userGuess」は小さすぎます！もう一度試してみてください！';
     }
+    setState(() {
+      _controller.clear();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      appBar: AppBar(title: Text("数字あてゲーム")),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              _message!,
+              style: const TextStyle(fontSize: 24),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _controller,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: '1~100の数字を入力してください',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(onPressed: _guessNumber, child: const Text('答える')),
+          ],
+        ),
+      ),
+    );
   }
 }
